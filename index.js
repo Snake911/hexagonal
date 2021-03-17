@@ -88,6 +88,7 @@ function updateGrid(gridArr) {
         }
     });
     grid = gridArr.sort((a, b) => a.x - b.x);
+    return grid;
 }
 
 function getColumns(coord, gridArr) {
@@ -112,53 +113,63 @@ function getColumns(coord, gridArr) {
 
 function checkGrid(oldGrid, newGrid) {
     for(let i = 0; i < oldGrid.length; i++) {
-        if(oldGrid[i].value !== newGrid[i].value) {
+        if(JSON.stringify(oldGrid[i]) !== JSON.stringify(newGrid[i])) {
             return false;
         }
     }
     return true;
 }
 
+
 function movingGrid(gridArr, columns, reverse = false) {
-    const oldGrid = gridArr;
     columns.map((column) => {
         if(reverse) {
             column.reverse();
-        }        
+        } 
         column.forEach((cell, index) => {
-            if(cell.value > 0 && index > 0 && column[index - 1].value === 0) {
-                column[index - 1].value = cell.value;
-                column[index].value = 0;
-            }
-        });
+            if(index > 0) {
+                while(index > 0 && (column[index - 1].value === 0 || column[index - 1].value === column[index].value)) {
+                    if(column[index].value > 0) {
+                        if(column[index - 1].value === column[index].value && !column[index - 1].lock && !column[index].lock) {                            
+                            column[index - 1].value += column[index].value;
+                            column[index - 1].lock = true;                            
+                        } else {
+                            column[index - 1].value = column[index].value;
+                        }                        
+                        column[index].value = 0;
+                    }
+                    index--;
+                }
+            }                  
+        });    
         if(reverse) {
             return column.reverse();
         } else {
             return column;
         }            
-    });    
-    const newGrid = columns.flat();
-    if(!checkGrid(oldGrid, newGrid)) {
-        movingGrid(newGrid, columns, reverse);
+    });
+    return columns.flat();
+}
+
+function move(gridArr, direction, reverse = false) {
+    const columns = getColumns(direction, gridArr);
+    if(direction === 'y') {
+        columns.reverse();
     }
-    return newGrid;
+    const newGrid = updateGrid(movingGrid(gridArr, columns, reverse));
+    setTimeout(() => {
+        getValueGrid(newGrid); 
+    }, 300);    
 }
-
-function move(gridArr, direction, reverse = false) {    
-    const columns = getColumns(direction, gridArr);    
-    updateGrid(movingGrid(gridArr, columns, reverse));
-}
-
  
 drawGrid(grid);
 getValueGrid(grid);
 document.addEventListener('keydown', function(event) {
-    console.log(event.code === 'KeyS');
     if(event.code === 'KeyS' || event.code === 'KeyW') {
         move(grid, 'x', event.code === 'KeyS');        
     } else if(event.code === 'KeyD' || event.code === 'KeyQ') {
         move(grid, 'z', event.code === 'KeyD');
     } else if(event.code === 'KeyA' || event.code === 'KeyE') {
-        move(grid, 'y', event.code === 'KeyA');
+        move(grid, 'y', event.code === 'KeyE');
     }
 });
