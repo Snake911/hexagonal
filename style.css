@@ -2,6 +2,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-family: sans-serif;
+    color: white;
 }
 
 .column {
@@ -21,4 +23,53 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    clip-path: polygon(25px 7px, 75px 7px, 100px 50px, 75px 93px, 24px 93px, 0px 50px);
+    z-index: -1;
+}
+
+.cell[data-value="2"] { 
+    background-color: #ECE4DB;
+    color: #766E66;
+}
+
+.cell[data-value="4"] { 
+    background-color: #EBE0CA;
+    color: #766E66;
+}
+
+.cell[data-value="8"] { 
+    background-color: #E9B381; 
+}
+
+.cell[data-value="16"] { 
+    background-color: #E8996C; 
+}
+
+.cell[data-value="32"] { 
+    background-color: #E78267; 
+}
+
+.cell[data-value="64"] { 
+    background-color: #E56747; 
+}
+
+.cell[data-value="128"] { 
+    background-color: #E8CF7F; 
+}
+
+.cell[data-value="256"] { 
+    background-color: #E8CC72; 
+}
+
+.cell[data-value="512"] { 
+    background-color: #E7C865; 
+}
+
+.cell[data-value="1024"] { 
+    background-color: #E7C559; 
+}
+
+.cell[data-value="2028"] { 
+    background-color: #E7C559; 
 }

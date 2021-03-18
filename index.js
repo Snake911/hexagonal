@@ -111,17 +111,7 @@ function getColumns(coord, gridArr) {
     return columns;
 }
 
-function checkGrid(oldGrid, newGrid) {
-    for(let i = 0; i < oldGrid.length; i++) {
-        if(JSON.stringify(oldGrid[i]) !== JSON.stringify(newGrid[i])) {
-            return false;
-        }
-    }
-    return true;
-}
-
-
-function movingGrid(gridArr, columns, reverse = false) {
+function movingGrid(columns, reverse = false) {
     columns.map((column) => {
         if(reverse) {
             column.reverse();
@@ -135,8 +125,11 @@ function movingGrid(gridArr, columns, reverse = false) {
                             column[index - 1].lock = true;                            
                         } else {
                             column[index - 1].value = column[index].value;
-                        }                        
-                        column[index].value = 0;
+                        }
+                        if(!column[index].lock) {
+                            column[index].value = 0;
+                        }                  
+                        
                     }
                     index--;
                 }
@@ -151,15 +144,29 @@ function movingGrid(gridArr, columns, reverse = false) {
     return columns.flat();
 }
 
+function checkGrid(oldGrid, newGrid) {
+    return oldGrid.filter((oldCell, index) => oldCell.value !== newGrid[index].value);
+}
+
+function sleep(milliseconds) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
+}
+
 function move(gridArr, direction, reverse = false) {
     const columns = getColumns(direction, gridArr);
     if(direction === 'y') {
         columns.reverse();
     }
-    const newGrid = updateGrid(movingGrid(gridArr, columns, reverse));
-    setTimeout(() => {
-        getValueGrid(newGrid); 
-    }, 300);    
+    const newGrid = updateGrid(movingGrid(columns, reverse));
+    sleep(50);
+    if(checkGrid(gridArr, newGrid).length > 0) {
+        getValueGrid(newGrid);
+    }
+     
 }
  
 drawGrid(grid);
