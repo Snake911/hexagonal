@@ -1,8 +1,14 @@
-const level = 3;
+const test = location.hash[location.hash.length-1];
+let server = document.getElementById('url-server').value;
+let level = test;
+let status = document.querySelector('[data-status]');
+status.textContent = status.dataset.status;
 
-let grid = initGrid();
+if(test) {
+    initGrid(level);
+}
 
-function initGrid() {
+function initGrid(level) {
     const newGrid = [];
     let rows = level;
     let down = 0;
@@ -19,10 +25,17 @@ function initGrid() {
             up--;
         }        
     }
+    server = document.getElementById('url-server').value + '/' + level;
+    drawGrid(newGrid);
+    getValueGrid(newGrid);
     return newGrid;
 }
 
 function drawGrid(gridArr) {
+    const oldGrid = document.querySelector('.grid');
+    if(oldGrid) {
+        oldGrid.remove();
+    }
     const gridElement = document.createElement('div');
     gridElement.classList.add('grid');
     let x, column;
@@ -45,20 +58,24 @@ function drawGrid(gridArr) {
         column.append(cell);
     });
     gridElement.append(column);
+    status.dataset.status = 'playing'
+    status.textContent = status.dataset.status;
     const game = document.getElementById('game');
     game.append(gridElement);
 }
 
 function getValueGrid(gridArr) {
     const notEmptyCells = gridArr.filter(cell => cell.value > 0);
-    fetch(`//68f02c80-3bed-4e10-a747-4ff774ae905a.pub.instances.scw.cloud/${level}`, {
+    fetch(server, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
         body: JSON.stringify(notEmptyCells),
     })
-    .then(response => response.json())
+    .then(response => {
+        return response.json();
+    })
     .then(response => {
         gridArr.forEach(elementGrid => {
             response.forEach(element => {
@@ -71,7 +88,9 @@ function getValueGrid(gridArr) {
         });
         updateGrid(gridArr);
     })
-    .catch(() => console.log('some error'));
+    .catch(error => {
+        throw new Error(error);
+    })
 }
 
 function updateGrid(gridArr) {
@@ -162,15 +181,40 @@ function move(gridArr, direction, reverse = false) {
         columns.reverse();
     }
     const newGrid = updateGrid(movingGrid(columns, reverse));
-    sleep(50);
-    if(checkGrid(gridArr, newGrid).length > 0) {
-        getValueGrid(newGrid);
-    }
-     
+    if(checkedGameOver(newGrid)) {
+        status.dataset.status = 'game-over'
+        status.textContent = status.dataset.status;
+    } else {
+        sleep(50);
+        if(checkGrid(gridArr, newGrid).length > 0) {
+            getValueGrid(newGrid);
+        }
+    }     
 }
- 
-drawGrid(grid);
-getValueGrid(grid);
+
+function checkedGameOver(gridArr) {
+    for(let i = 0; i < gridArr.length; i++) {
+        if(gridArr[i].value === 0) {
+            return false;
+        }
+    }
+    const newArr = gridArr.map(cell => {       
+        const elements = [];
+        elements.push(document.getElementById(`${cell.x}_${cell.y + 1}_${cell.z - 1}`));
+        elements.push(document.getElementById(`${cell.x}_${cell.y - 1}_${cell.z + 1}`));
+        elements.push(document.getElementById(`${cell.x + 1}_${cell.y}_${cell.z - 1}`));
+        elements.push(document.getElementById(`${cell.x - 1}_${cell.y}_${cell.z + 1}`));
+        elements.push(document.getElementById(`${cell.x + 1}_${cell.y - 1}_${cell.z}`));
+        elements.push(document.getElementById(`${cell.x - 1}_${cell.y + 1}_${cell.z}`));
+        
+        const values = elements.filter(element => element).map(element => element.dataset.value);        
+        return values.filter(value => {
+            return value == cell.value;
+        });
+    });
+    return newArr.filter(arr => arr.length > 0).length === 0;
+}
+
 document.addEventListener('keydown', function(event) {
     if(event.code === 'KeyS' || event.code === 'KeyW') {
         move(grid, 'x', event.code === 'KeyS');        
@@ -180,3 +224,28 @@ document.addEventListener('keydown', function(event) {
         move(grid, 'y', event.code === 'KeyE');
     }
 });
+
+const levelButtons = document.querySelectorAll('input[name="level"]');
+for(var i=0; i<levelButtons.length; i++) {
+    levelButtons[i].addEventListener("change", e => {
+        initGrid(e.target.value);
+    });
+}
+
+document.getElementById("url-server").addEventListener("change", e => {
+    server = e.target.value;
+    const grid = document.querySelector('.grid');
+    if(grid) {
+        grid.remove();
+        document.querySelector('input[name="level"]:checked').checked = false;
+    }    
+    status.dataset.status = 'round-select';
+    status.textContent = status.dataset.status;
+});
+
+window.addEventListener('hashchange', hashchange);
+
+function hashchange(e){
+    e.preventDefault();
+    initGrid(location.hash[location.hash.length-1]);    
+}
