@@ -8,32 +8,39 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <select id="url-server">
-        <option id="remote" value="//68f02c80-3bed-4e10-a747-4ff774ae905a.pub.instances.scw.cloud">Remote server</option>
-        <option id="localhost" value="http://localhost:13337">Local server</option>
-    </select>
-    <label>
-        <span>2</span>
-        <input type="radio" name="level" value="2">
-    </label>
-    <label>
-        <span>3</span>
-        <input type="radio" name="level" value="3">
-    </label>
-    <label>
-        <span>4</span>
-        <input type="radio" name="level" value="4">
-    </label>
-    <label>
-        <span>5</span>
-        <input type="radio" name="level" value="5">
-    </label>
-    <label>
-        <span>6</span>
-        <input type="radio" name="level" value="6">
-    </label>
+    <div class="settings">
+       <div class="servers">
+            <span>RNG-server url:</span>
+            <select id="url-server">
+                <option id="remote" value="//68f02c80-3bed-4e10-a747-4ff774ae905a.pub.instances.scw.cloud">Remote server</option>
+                <option id="localhost" value="http://localhost:13337">Local server</option>
+            </select>
+       </div>
+        <div class="levels">
+            <label>
+                <span>2</span>
+                <input type="radio" name="level" value="2">
+            </label>
+            <label>
+                <span>3</span>
+                <input type="radio" name="level" value="3">
+            </label>
+            <label>
+                <span>4</span>
+                <input type="radio" name="level" value="4">
+            </label>
+            <label>
+                <span>5</span>
+                <input type="radio" name="level" value="5">
+            </label>
+            <label>
+                <span>6</span>
+                <input type="radio" name="level" value="6">
+            </label>
+        </div>
+    </div>
     <div id="game"></div>
-    <div>Game Status: <span data-status="round-select"></span></div>
+    <div class="status">Game Status: <span data-status="round-select"></span></div>
     <script src="index.js"></script>
 </body>
 </html>

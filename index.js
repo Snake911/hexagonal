@@ -5,7 +5,7 @@ let status = document.querySelector('[data-status]');
 status.textContent = status.dataset.status;
 
 if(test) {
-    initGrid(level);
+    initGrid(test);
 }
 
 function initGrid(level) {
@@ -27,6 +27,7 @@ function initGrid(level) {
     }
     server = document.getElementById('url-server').value + '/' + level;
     drawGrid(newGrid);
+    sleep(200); //Пришлось добавить для прохождения тестов
     getValueGrid(newGrid);
     return newGrid;
 }
@@ -49,10 +50,10 @@ function drawGrid(gridArr) {
         }
         const cell = document.createElement('div');
         cell.classList.add('cell');
+        cell.dataset.value = gridCell.value;
         cell.dataset.x = gridCell.x;
         cell.dataset.y = gridCell.y;
         cell.dataset.z = gridCell.z;
-        cell.dataset.value = gridCell.value;
         cell.id = `${gridCell.x}_${gridCell.y}_${gridCell.z}`
         x = gridCell.x;
         column.append(cell);
@@ -141,13 +142,17 @@ function movingGrid(columns, reverse = false) {
                     if(column[index].value > 0) {
                         if(column[index - 1].value === column[index].value && !column[index - 1].lock && !column[index].lock) {                            
                             column[index - 1].value += column[index].value;
-                            column[index - 1].lock = true;                            
-                        } else {
+                            column[index - 1].lock = true;
+                            if(!column[index].lock) {
+                                column[index].value = 0;
+                            }                    
+                        } else if(column[index - 1].value !== column[index].value && !column[index - 1].lock && !column[index].lock) {
                             column[index - 1].value = column[index].value;
+                            if(!column[index].lock) {
+                                column[index].value = 0;
+                            }
                         }
-                        if(!column[index].lock) {
-                            column[index].value = 0;
-                        }                  
+                                        
                         
                     }
                     index--;
@@ -185,7 +190,7 @@ function move(gridArr, direction, reverse = false) {
         status.dataset.status = 'game-over'
         status.textContent = status.dataset.status;
     } else {
-        sleep(50);
+        sleep(100); //Пришлось добавить для прохождения тестов
         if(checkGrid(gridArr, newGrid).length > 0) {
             getValueGrid(newGrid);
         }
@@ -237,15 +242,19 @@ document.getElementById("url-server").addEventListener("change", e => {
     const grid = document.querySelector('.grid');
     if(grid) {
         grid.remove();
+    }
+    if(document.querySelector('input[name="level"]:checked')) {
         document.querySelector('input[name="level"]:checked').checked = false;
     }    
     status.dataset.status = 'round-select';
     status.textContent = status.dataset.status;
+    if(test) {
+        initGrid(test);
+    }
 });
 
-window.addEventListener('hashchange', hashchange);
-
-function hashchange(e){
+window.addEventListener('hashchange', e => {
     e.preventDefault();
-    initGrid(location.hash[location.hash.length-1]);    
-}
+    const level = location.hash[location.hash.length-1];
+    initGrid(level);
+});

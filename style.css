@@ -6,6 +6,46 @@
     color: white;
 }
 
+.settings {
+    width: max-content;
+    margin: auto;
+    text-align: center;
+    background: antiquewhite;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.levels {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.levels label {
+    color: white;
+    background-color: green;
+    width: 30px;
+    height: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.levels label:hover {
+    opacity: 0.9;
+}
+
+.levels input[type="radio"] {
+    display: none;
+}
+
+.status {
+    text-align: center;
+    margin-top: 15px;
+}
+
 .column {
     display: flex;
     flex-direction: column;
